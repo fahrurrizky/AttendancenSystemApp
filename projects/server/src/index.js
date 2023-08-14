@@ -2,18 +2,18 @@ require("dotenv/config");
 const express = require("express");
 const cors = require("cors");
 const { join } = require("path");
+const path = require("path");
 
-const PORT = process.env.PORT || 8000;
-const app = express();
 const db = require("../models");
 // db.sequelize.sync({ alter: true });
 
+const PORT = process.env.PORT || 8000;
+const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      // process.env.WHITELISTED_DOMAIN &&
-      //   process.env.WHITELISTED_DOMAIN.split(","),
+      process.env.WHITELISTED_DOMAIN &&
+        process.env.WHITELISTED_DOMAIN.split(","),
     ],
   })
 );
@@ -21,10 +21,22 @@ app.use(
 app.use(express.json());
 
 //#region API ROUTES
-const { authRouter } = require("./routers");
+
+const {
+  authRouter,
+  attendRouter,
+  salaryRouter,
+} = require("./routers");
 // ===========================
 // NOTE : Add your routes here
-app.use("/api/auth", authRouter);
+
+app.use(
+  "/api",
+  authRouter,
+  attendRouter,
+  salaryRouter,
+);
+app.use("/public", express.static(path.resolve(__dirname, "../public")));
 
 app.get("/api", (req, res) => {
   res.send(`Hello, this is my API`);
@@ -35,6 +47,8 @@ app.get("/api/greetings", (req, res, next) => {
     message: "Hello, Student !",
   });
 });
+
+app.get;
 
 // ===========================
 

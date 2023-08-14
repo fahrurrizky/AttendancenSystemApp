@@ -1,37 +1,33 @@
 "use strict";
 
-/** @type {import('sequelize-cli').Migration} */
+const bcrypt = require("bcrypt");
+// const { v4: uuidv4 } = require("uuid");
+
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.bulkInsert("Roles", [
-      { role: "admin", createdAt: new Date(), updatedAt: new Date() },
-      { role: "pegawai", createdAt: new Date(), updatedAt: new Date() },
-    ]);
-    await queryInterface.bulkInsert("Users", [
+  up: async (queryInterface, Sequelize) => {
+    const hashedPassword = await bcrypt.hash("Admin12@", 10);
+    // const adminUuid = uuidv4();
+
+    return queryInterface.bulkInsert("Users", [
       {
-        fullName: "admin",
+        fullName: "Admin User",
         email: "admin@gmail.com",
-        username: "admin",
-        password: "admin",
-        birthday: new Date(1995, 0, 14),
-        roleID: 1,
-        baseSalary: 5000000,
-        isLogin: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        username: "admin",
+        password: hashedPassword,
+        birthday: "1990-01-01",
+        // roleID: 1,
+        daysalary: 100000,
+        baseSalary: 5000000,
+        income: 10000,
+        isActive: 1,
       },
     ]);
   },
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("Users", null, {});
-
-    /**
-     *
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
+  down: (queryInterface, Sequelize) => {
+    // Delete the admin user data
+    return queryInterface.bulkDelete("Users", { username: "admin" });
   },
 };

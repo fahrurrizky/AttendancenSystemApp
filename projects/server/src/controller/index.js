@@ -1,3 +1,4 @@
 const authController = require("./authController");
-
-module.exports = { authController };
+const attendanceController = require("./attendControllers");
+const salaryController = require("./salaryController");
+module.exports = { authController, attendanceController, salaryController };

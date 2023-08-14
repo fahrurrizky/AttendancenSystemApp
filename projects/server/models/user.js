@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.Role, { foreignKey: "roleID" });
+      this.belongsTo(models.Role, { foreignKey: "roleID" }),
+      this.hasMany(models.History, {
+        foreignKey: "userID"
+      })
     }
   }
   User.init(
@@ -20,8 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       birthday: DataTypes.DATE,
       roleID: DataTypes.INTEGER,
+      daySalary: DataTypes.INTEGER,
       baseSalary: DataTypes.INTEGER,
-      isLogin: { type: DataTypes.BOOLEAN, defaultValue: false },
+      income: DataTypes.INTEGER,
+      isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     },
     {
       sequelize,

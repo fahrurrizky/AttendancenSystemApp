@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class History extends Model {
     /**
@@ -8,23 +9,32 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // Define association here
+      this.belongsTo(models.User, { foreignKey: "userID" });
+      this.belongsTo(models.Salary, { foreignKey: "salaryID" });
     }
   }
+
   History.init(
     {
       userID: DataTypes.INTEGER,
+      salaryID: DataTypes.INTEGER,
       ClockIn: DataTypes.DATE,
-      ClockOut: DataTypes.DATE,
+      ClockOut: {
+        type: DataTypes.DATE,
+        defaultValue: null,
+      },
+      HourlyWorks: DataTypes.FLOAT,
       DaySalary: DataTypes.INTEGER,
+      Month: DataTypes.INTEGER,
+      Deduction: DataTypes.INTEGER,
       isOvertime: { type: DataTypes.BOOLEAN, defaultValue: true },
     },
     {
       sequelize,
       modelName: "History",
-      createdAt: "ClockIn",
-      updatedAt: "ClockOut",
     }
   );
+
   return History;
 };

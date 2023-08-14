@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./TextAnimation.css";
+import "../../pages/TextAnimation.css"; // Make sure to include the CSS file for animation styles
 import {
   Container,
   Box,
@@ -12,52 +12,55 @@ import {
   VStack,
   Text,
   useColorModeValue,
-  InputGroup,
-  InputRightElement,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { Formik, Field, ErrorMessage, Form } from "formik";
+import { useParams, useNavigate } from "react-router-dom";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { IconButton, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginSuccess } from "../redux/reducer/authReducer";
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
+  fullname: Yup.string().required("Full Name is required"),
+  birthday: Yup.date().required("Birthday is required"),
+  username: Yup.string().required("Username is required"),
   password: Yup.string()
+    .required("Password is required")
     .matches(
       /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,}$/,
       "Password must contain at least 8 characters, 1 symbol, and 1 uppercase letter"
-    )
-    .required("Password is required"),
+    ),
 });
 
-const LoginForm = () => {
+const RegisEmployee = () => {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async (values) => {
-    try {
-      const response = await axios.post("http://localhost:8000/api/login", {
-        email: values.email,
-        password: values.password,
-      });
-      const userID = response.data.user.id;
+  const [error, setError] = useState("");
 
-      if (response.status === 200) {
-        dispatch(loginSuccess(response.data.token));
-        if (
-          response.data.user.roleID === 1 ||
-          response.data.user.roleID === 2
-        ) {
-          navigate(`/menu-employee/${userID}`);
-        } else if (response.data.user.roleID === 3) {
-          navigate("/menu-admin");
+  const handleSubmit = async (values) => {
+    try {
+      const response = await axios.patch(
+        "http://localhost:8000/api/auth",
+        {
+          fullname: values.fullname,
+          birthday: values.birthday,
+          username: values.username,
+          password: values.password,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+      if (response.status === 200) {
+        navigate("/"); // Redirect to homepage after successful registration
       }
-    } catch (error) {}
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+    }
   };
 
   return (
@@ -77,16 +80,16 @@ const LoginForm = () => {
         >
           <Stack align="center" spacing={2} textColor={"white"}>
             <Heading fontSize={{ base: "xl", sm: "3xl" }}>
-              Login in to your account
+              Complete Your Registration
             </Heading>
             <Text
-              fontFamily={"monospace"}
+              fontFamily={"body"}
               fontSize={{ base: "sm", sm: "md" }}
               textAlign={"center"}
               className="animated-text"
             >
-              We are what we repeatedly do. Excellence, then, is not an act but
-              a habit...........
+              Please provide your information below, and make sure you fill in
+              the information according to your personal data.
             </Text>
           </Stack>
           <Box pos="relative">
@@ -101,9 +104,14 @@ const LoginForm = () => {
               transform="rotate(-2deg)"
             ></Box>
             <Formik
-              initialValues={{ email: "", password: "" }}
+              initialValues={{
+                fullname: "",
+                birthday: "",
+                username: "",
+                password: "",
+              }}
               validationSchema={validationSchema}
-              onSubmit={handleLogin}
+              onSubmit={handleSubmit}
             >
               <Form>
                 <VStack
@@ -114,18 +122,43 @@ const LoginForm = () => {
                   rounded="lg"
                   boxShadow="lg"
                 >
-                  <Field name="email">
+                  <Field name="fullname">
                     {({ field }) => (
-                      <FormControl id="email">
-                        <FormLabel>Email address</FormLabel>
-                        <Input
-                          {...field}
-                          type="email"
-                          placeholder="Your email"
-                          rounded="md"
-                        />
+                      <FormControl id="fullname">
+                        <FormLabel>Full Name</FormLabel>
+                        <Input {...field} type="text" rounded="md" />
                         <ErrorMessage
-                          name="email"
+                          name="fullname"
+                          component="div"
+                          className="error-message"
+                          style={{ color: "red" }}
+                        />
+                      </FormControl>
+                    )}
+                  </Field>
+
+                  <Field name="birthday">
+                    {({ field }) => (
+                      <FormControl id="birthday">
+                        <FormLabel>Birthday</FormLabel>
+                        <Input {...field} type="date" rounded="md" />
+                        <ErrorMessage
+                          name="birthday"
+                          component="div"
+                          className="error-message"
+                          style={{ color: "red" }}
+                        />
+                      </FormControl>
+                    )}
+                  </Field>
+
+                  <Field name="username">
+                    {({ field }) => (
+                      <FormControl id="username">
+                        <FormLabel>Username</FormLabel>
+                        <Input {...field} type="text" rounded="md" />
+                        <ErrorMessage
+                          name="username"
                           component="div"
                           className="error-message"
                           style={{ color: "red" }}
@@ -136,23 +169,23 @@ const LoginForm = () => {
 
                   <Field name="password">
                     {({ field }) => (
-                      <FormControl id="password" mb={4}>
+                      <FormControl id="password">
                         <FormLabel>Password</FormLabel>
                         <InputGroup>
                           <Input
                             {...field}
                             type={showPassword ? "text" : "password"}
-                            placeholder="Your Password"
                             rounded="md"
                           />
-                          <InputRightElement>
-                            <Button
+                          <InputRightElement width="4.5rem">
+                            <IconButton
                               h="1.75rem"
                               size="sm"
                               onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                            </Button>
+                              icon={
+                                showPassword ? <ViewOffIcon /> : <ViewIcon />
+                              }
+                            />
                           </InputRightElement>
                         </InputGroup>
                         <ErrorMessage
@@ -165,6 +198,7 @@ const LoginForm = () => {
                     )}
                   </Field>
 
+                  {error && <Text color="red">{error}</Text>}
                   <Button
                     type="submit"
                     bgGradient="linear(to-l, #7928CA,#FF0080)"
@@ -175,7 +209,7 @@ const LoginForm = () => {
                     rounded="md"
                     w="100%"
                   >
-                    Login
+                    Register
                   </Button>
                 </VStack>
               </Form>
@@ -187,4 +221,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default RegisEmployee;

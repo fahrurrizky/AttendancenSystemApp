@@ -4,7 +4,7 @@ require("dotenv").config({ path: path.resolve("../.env") });
 
 const verifyToken = async (req, res, next) => {
   let token = req.headers.authorization;
-  if (!token) return res.status(401).send("Belum Login");
+  if (!token) return res.status(401).send("Not yet logged in");
   try {
     token = token.split(" ")[1];
     if (token === "null" || !token) return res.status(401).send("access denied");
