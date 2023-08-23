@@ -25,6 +25,7 @@ const kirimEmailRegis = async (email, user) => {
     html: tempResult,
   });
 };
+// SABAR
 
 const authController = {
   login: async (req, res) => {
