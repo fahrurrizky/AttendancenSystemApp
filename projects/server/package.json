@@ -7,7 +7,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "start": "nodemon",
+    "start": "node",
     "serve": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
