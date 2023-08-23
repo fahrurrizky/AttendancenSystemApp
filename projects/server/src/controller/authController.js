@@ -14,7 +14,7 @@ const kirimEmailRegis = async (email, user) => {
     expiresIn: "10m",
   });
   
-  const redirect = `http://localhost:3000/regis/${token}`;
+  const redirect = "dico";
   const data = await fs.readFile(path.resolve(__dirname, "../emails/registerEmployee.html"), "utf-8");
   const tesCompile = handlebars.compile(data);
   const tempResult = tesCompile({ email, redirect });
